@@ -14,18 +14,69 @@ TensorRT-LLM inference on NVIDIA Triton, with Servant-based tool server.
 ## Quick Start
 
 ```bash
-# Run the Tool Server (Servant + OpenAPI3)
-nix run github:straylight-software/triton-tensorrt-llm#tool-server
+# Run the demo (OpenAI Proxy + Tool Server + Open WebUI)
+nix run github:straylight-software/triton-tensorrt-llm
 
-# Run the OpenAI Proxy
-nix run github:straylight-software/triton-tensorrt-llm#openai-proxy
+# Point to your Triton server
+nix run github:straylight-software/triton-tensorrt-llm -- --triton-url http://gpu-server:8000
 
-# Build an engine (requires GPU)
+# Then open http://localhost:3000 for chat UI
+```
+
+### Individual Components
+
+```bash
+# OpenAI Proxy only
+nix run .#openai-proxy
+
+# Tool Server only (code sandbox + attestation)
+nix run .#tool-server
+
+# Open WebUI only
+nix run .#open-webui
+
+# Build a TRT-LLM engine (requires GPU)
 nix build .#qwen3-32b-engine --option sandbox false
 
-# Run validation
+# Validate an engine
 nix run .#trtllm-validate -- detect-quant /path/to/model
 ```
+
+---
+
+## Demo
+
+The default `nix run` starts a full stack:
+
+| Service | Port | Description |
+|---------|------|-------------|
+| Open WebUI | 3000 | Chat interface |
+| OpenAI Proxy | 9000 | OpenAI-compatible API |
+| Tool Server | 9001 | Code sandbox + attestation |
+
+```bash
+# Default: connects to localhost:8000 for Triton
+nix run .
+
+# Connect to remote Triton
+nix run . -- --triton-url http://192.168.1.100:8000
+
+# Custom model name
+nix run . -- --model llama3
+
+# Proxy only (no WebUI)
+nix run . -- --proxy-only
+```
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `TRITON_URL` | `http://localhost:8000` | Triton server URL |
+| `MODEL_NAME` | `qwen3` | Model name |
+| `OPENAI_PROXY_PORT` | `9000` | OpenAI proxy port |
+| `TOOL_SERVER_PORT` | `9001` | Tool server port |
+| `OPEN_WEBUI_PORT` | `3000` | Open WebUI port |
 
 ---
 

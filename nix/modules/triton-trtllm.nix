@@ -189,6 +189,30 @@ in
     };
 
     # ──────────────────────────────────────────────────────────────────────────
+    # Open WebUI
+    # ──────────────────────────────────────────────────────────────────────────
+
+    openWebUI = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Enable Open WebUI chat interface";
+      };
+
+      port = lib.mkOption {
+        type = lib.types.port;
+        default = 3000;
+        description = "Port for Open WebUI";
+      };
+
+      host = lib.mkOption {
+        type = lib.types.str;
+        default = "0.0.0.0";
+        description = "Host to bind Open WebUI to";
+      };
+    };
+
+    # ──────────────────────────────────────────────────────────────────────────
     # SearXNG (Native - no Docker required)
     # ──────────────────────────────────────────────────────────────────────────
 
@@ -400,6 +424,23 @@ in
     };
 
     # ──────────────────────────────────────────────────────────────────────────
+    # Open WebUI
+    # ──────────────────────────────────────────────────────────────────────────
+
+    services.open-webui = lib.mkIf cfg.openWebUI.enable {
+      enable = true;
+      port = cfg.openWebUI.port;
+      host = cfg.openWebUI.host;
+      environment = {
+        OPENAI_API_BASE_URL = "http://localhost:${toString cfg.openaiProxy.port}/v1";
+        OPENAI_API_KEY = "not-needed";  # Our proxy doesn't require auth
+        WEBUI_AUTH = "False";  # Disable auth for local dev
+        ENABLE_SIGNUP = "False";
+        DEFAULT_MODELS = cfg.model;
+      };
+    };
+
+    # ──────────────────────────────────────────────────────────────────────────
     # SearXNG (uses nixpkgs services.searx - no Docker)
     # ──────────────────────────────────────────────────────────────────────────
 
@@ -449,7 +490,8 @@ in
 
     networking.firewall.allowedTCPPorts = 
       lib.optional cfg.openaiProxy.enable cfg.openaiProxy.port
-      ++ lib.optional cfg.toolServer.enable cfg.toolServer.port;
+      ++ lib.optional cfg.toolServer.enable cfg.toolServer.port
+      ++ lib.optional cfg.openWebUI.enable cfg.openWebUI.port;
 
     # ──────────────────────────────────────────────────────────────────────────
     # Info File
@@ -478,6 +520,10 @@ in
         Base:    http://localhost:${toString cfg.toolServer.port}
         OpenAPI: http://localhost:${toString cfg.toolServer.port}/openapi.json
         Health:  http://localhost:${toString cfg.toolServer.port}/health
+      ''}
+      ${lib.optionalString cfg.openWebUI.enable ''
+      Open WebUI:
+        Chat:    http://localhost:${toString cfg.openWebUI.port}
       ''}
       ${lib.optionalString cfg.searxng.enable ''
       SearXNG:

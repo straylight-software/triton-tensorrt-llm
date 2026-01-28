@@ -74,6 +74,11 @@
               trtllm-validate
               ;
 
+            # Demo: full stack launcher
+            demo = pkgs'.callPackage ./nix/demo.nix {
+              inherit (pkgs') openai-proxy tool-server open-webui;
+            };
+
             # Re-export from nvidia-sdk for convenience
             inherit (pkgs')
               tritonserver-trtllm
@@ -143,11 +148,17 @@
           };
 
           apps = {
-            # Unified AI Gateway
+            # Demo: full stack with Open WebUI
             default = {
               type = "app";
-              program = "${pkgs'.openai-proxy}/bin/openai-proxy-hs";
-              meta.description = "Haskell AI Gateway: OpenAI proxy + tools + metrics";
+              program = "${self'.packages.demo}/bin/triton-trtllm-demo";
+              meta.description = "Demo: OpenAI proxy + Tool Server + Open WebUI";
+            };
+
+            demo = {
+              type = "app";
+              program = "${self'.packages.demo}/bin/triton-trtllm-demo";
+              meta.description = "Demo: OpenAI proxy + Tool Server + Open WebUI";
             };
 
             openai-proxy = {
@@ -160,6 +171,12 @@
               type = "app";
               program = "${pkgs'.tool-server}/bin/tool-server";
               meta.description = "Servant API with OpenAPI3: code sandbox + attestation";
+            };
+
+            open-webui = {
+              type = "app";
+              program = "${pkgs'.open-webui}/bin/open-webui";
+              meta.description = "Open WebUI chat interface";
             };
 
             trtllm-validate = {
