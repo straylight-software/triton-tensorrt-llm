@@ -19,6 +19,7 @@
 { lib
 , haskellPackages
 , makeWrapper
+, runCommand
 , ast-grep
 , git
 , openssh
@@ -83,7 +84,7 @@ let
 
 in
   # Wrap with runtime dependencies
-  haskellPackages.buildPackages.runCommand "tool-server-wrapped" {
+  runCommand "tool-server-wrapped" {
     nativeBuildInputs = [ makeWrapper ];
     meta = toolServer.meta // {
       mainProgram = "tool-server";

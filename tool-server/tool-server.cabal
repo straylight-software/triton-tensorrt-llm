@@ -1,4 +1,4 @@
-cabal-version: 2.4
+cabal-version: 3.0
 name:          tool-server
 version:       0.1.0
 synopsis:      Servant-based tool server with OpenAPI3 for AI agents
@@ -48,7 +48,7 @@ common lang
 
 library
   import:           warnings, lang
-  hs-source-dirs:   ../lib
+  hs-source-dirs:   lib
   exposed-modules:
     CodeSandbox
     Attestation
@@ -77,9 +77,11 @@ library api-types
   build-depends:
     , aeson             >= 2.0    && < 2.3
     , base              >= 4.14   && < 5
+    , lens              >= 5.0    && < 6
     , openapi3          >= 3.2    && < 3.3
     , servant           >= 0.20   && < 0.21
     , servant-openapi3  >= 2.0    && < 2.1
+    , servant-server    >= 0.20   && < 0.21
     , text              >= 1.2    && < 2.2
     , tool-server
 
@@ -96,7 +98,10 @@ executable tool-server
     , base              >= 4.14   && < 5
     , http-client       >= 0.7    && < 0.8
     , http-client-tls   >= 0.3    && < 0.4
+    , lens              >= 5.0    && < 6
+    , openapi3          >= 3.2    && < 3.3
     , servant           >= 0.20   && < 0.21
+    , servant-openapi3  >= 2.0    && < 2.1
     , servant-server    >= 0.20   && < 0.21
     , text              >= 1.2    && < 2.2
     , tool-server

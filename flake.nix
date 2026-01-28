@@ -23,7 +23,7 @@
 
     # NVIDIA SDK provides CUDA, cuDNN, NCCL, TensorRT, Triton
     nvidia-sdk = {
-      url = "github:straylight-software/nvidia-sdk";
+      url = "github:weyl-ai/nvidia-sdk";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -207,10 +207,7 @@
             # Servant API with OpenAPI3 (code sandbox + attestation)
             tool-server = final.callPackage ./nix/tool-server.nix {
               inherit (final) ast-grep git openssh gnupg;
-              inherit (final) rustc ghc dhall;
-              # lean4 and purescript may need special handling
-              lean4 = final.elan or final.lean4 or null;
-              purescript = final.purescript or null;
+              inherit (final) rustc ghc dhall lean4 purescript;
             };
             
             # TRT-LLM validation CLI

@@ -12,12 +12,15 @@
 module API
   ( -- * Combined API
     ToolServerAPI
+  , ToolServerAPIFull
   , toolServerAPI
+  , toolServerAPIFull
     -- * Sub-APIs
   , CodeAPI
   , IdentityAPI
   , ToolsAPI
   , HealthAPI
+  , HealthAPIWithSpec
     -- * Response types defined here
   , HealthResp(..)
   , CoeffectsManifest(..)
@@ -41,8 +44,14 @@ import API.Types
 -- Health API
 -- ════════════════════════════════════════════════════════════════════════════════
 
+-- Note: OpenAPI spec endpoint is handled separately (not part of spec itself)
 type HealthAPI =
        "health" :> Get '[JSON] HealthResp
+
+-- This type includes the openapi.json endpoint for serving, but we exclude it
+-- from the OpenAPI spec generation to avoid recursion
+type HealthAPIWithSpec =
+       HealthAPI
   :<|> "openapi.json" :> Get '[JSON] OpenApi
 
 data HealthResp = HealthResp
@@ -128,6 +137,7 @@ instance ToSchema CoeffectsManifest
 -- Combined API
 -- ════════════════════════════════════════════════════════════════════════════════
 
+-- | API for OpenAPI spec generation (excludes the openapi.json endpoint itself)
 type ToolServerAPI = 
        HealthAPI 
   :<|> CodeAPI 
@@ -135,8 +145,19 @@ type ToolServerAPI =
   :<|> ToolsAPI
   :<|> CoeffectsAPI
 
+-- | Full API including the openapi.json endpoint (for serving)
+type ToolServerAPIFull =
+       HealthAPIWithSpec
+  :<|> CodeAPI
+  :<|> IdentityAPI
+  :<|> ToolsAPI
+  :<|> CoeffectsAPI
+
 toolServerAPI :: Proxy ToolServerAPI
 toolServerAPI = Proxy
+
+toolServerAPIFull :: Proxy ToolServerAPIFull
+toolServerAPIFull = Proxy
 
 
 -- ════════════════════════════════════════════════════════════════════════════════

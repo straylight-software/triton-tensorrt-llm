@@ -28,7 +28,7 @@ import System.Environment (lookupEnv)
 import System.IO (hFlush, stdout)
 import Text.Read (readMaybe)
 
-import API
+import API (ToolServerAPIFull, toolServerAPIFull, openApiSpec, HealthResp(..), CoeffectsManifest(..))
 import API.Types
 import qualified CodeSandbox as CS
 import qualified Attestation as AT
@@ -303,7 +303,7 @@ convertSigStatus = \case
 -- Server
 -- ════════════════════════════════════════════════════════════════════════════════
 
-server :: ServerState -> Server ToolServerAPI
+server :: ServerState -> Server ToolServerAPIFull
 server state = 
        -- Health
        (healthHandler :<|> openApiHandler)
@@ -330,7 +330,7 @@ server state =
   :<|> coeffectsManifestHandler
 
 app :: ServerState -> Application
-app state = serve toolServerAPI (server state)
+app state = serve toolServerAPIFull (server state)
 
 
 -- ════════════════════════════════════════════════════════════════════════════════

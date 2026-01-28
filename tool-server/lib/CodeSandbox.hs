@@ -49,6 +49,7 @@ import Control.Concurrent.STM
 import Control.Exception (try, SomeException)
 import Control.Monad (forM)
 import Data.Aeson
+import Data.Aeson.Types (parseMaybe)
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import Data.Text (Text)

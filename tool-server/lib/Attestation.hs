@@ -37,6 +37,7 @@ module Attestation
 
 import Control.Exception (try, SomeException)
 import Data.Aeson
+import Data.Aeson.Key (fromText)
 import Data.Maybe (fromMaybe, catMaybes)
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -108,7 +109,7 @@ instance ToJSON Coeffects where
     [ ("filesystem" .=) <$> coFilesystem
     , ("network" .=) <$> coNetwork
     , ("gpu" .=) <$> coGpu
-    ] ++ [k .= v | (k, v) <- coCustom]
+    ] ++ [fromText k .= v | (k, v) <- coCustom]
 
 instance FromJSON Coeffects where
   parseJSON = withObject "Coeffects" $ \v -> Coeffects
@@ -307,7 +308,7 @@ createAttestation identity mRepoPath attType context mThought mAction coeffects 
           (_, dateOut, _) <- readProcessWithExitCode
             "git" ["-C", repoPath, "log", "-1", "--format=%cI"] ""
           
-          mTimestamp <- iso8601ParseM (T.unpack $ T.strip $ T.pack dateOut)
+          let mTimestamp = iso8601ParseM (T.unpack $ T.strip $ T.pack dateOut) :: Maybe UTCTime
           case mTimestamp of
             Nothing -> pure $ Left $ ParseError "Could not parse commit timestamp"
             Just timestamp -> pure $ Right $ Attestation
@@ -355,7 +356,7 @@ parseLogEntry :: FilePath -> Text -> IO (Maybe Attestation)
 parseLogEntry repoPath line = do
   case T.splitOn "|" line of
     [hash, date, subject, sigStatus, sigFp] -> do
-      mTimestamp <- iso8601ParseM (T.unpack date)
+      let mTimestamp = iso8601ParseM (T.unpack date) :: Maybe UTCTime
       case mTimestamp of
         Nothing -> pure Nothing
         Just ts -> do
